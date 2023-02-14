@@ -13,4 +13,28 @@
 // Notes:
 // * Use a HashMap for the furniture store stock
 
-fn main() {}
+use std::collections::HashMap;
+
+fn main() {
+    let mut items: HashMap<&str, i32> = HashMap::new();
+    items.insert("Chairs", 5);
+    items.insert("Beds", 3);
+    items.insert("Tables", 2);
+    items.insert("Couches", 0);
+
+    let mut items_sum = 0;
+
+    for (item, q) in items.iter() {
+        let quantity = if *q == 0 {
+            "out of stock".to_owned()
+        } else {
+            q.to_string()
+        };
+        println!("{} – {}", item, quantity);
+
+        items_sum += q;
+    }
+
+    println!();
+    println!("Total # of items in stock – {}", items_sum)
+}
