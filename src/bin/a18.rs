@@ -1,7 +1,7 @@
 // Topic: Result
 //
 // Requirements:
-// * Create an structure named `Adult` that represents a person aged 21 or older:
+// * Create a structure named `Adult` that represents a person aged 21 or older:
 //   * The structure must contain the person's name and age
 //   * Implement Debug print functionality using `derive`
 // * Implement a `new` function for the `Adult` structure that returns a Result:
@@ -16,4 +16,34 @@
 //   * For the Ok variant, print any message you want
 //   * For the Err variant, print out the error message
 
-fn main() {}
+#[derive(Debug)]
+struct Adult {
+    name: String,
+    age: i16,
+}
+
+impl Adult {
+    fn new(name: &str, age: i16) -> Result<Self, String> {
+        if age >= 21 {
+            return Ok(Self {
+                name: name.to_owned(),
+                age,
+            });
+        }
+        Err("Age must be at least 21".to_owned())
+    }
+}
+
+fn main() {
+    let person = Adult::new("Kofi", 25);
+    let person2 = Adult::new("Abena", 18);
+
+    match person {
+        Ok(adult) => println!("Adult, name – {}... age – {}.", adult.name, adult.age),
+        Err(msg) => println!("{}", msg)
+    }
+    match person2 {
+        Ok(adult) => println!("Adult, name – {}... age – {}.", adult.name, adult.age),
+        Err(msg) => println!("{}", msg)
+    }
+}
