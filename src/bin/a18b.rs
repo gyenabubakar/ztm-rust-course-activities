@@ -4,7 +4,7 @@
 //   This small program simulates unlocking a door using digital keycards
 //   backed by a database. Many errors can occur when working with a database,
 //   making the question mark operator the perfect thing to use to keep
-//   the code managable.
+//   the code manageable.
 //
 // Requirements:
 // * Write the body of the `authorize` function. The steps to authorize a user
@@ -26,6 +26,7 @@
 // * Only the `authorize` function should be changed. Everything else can remain
 //   unmodified.
 
+#[allow(dead_code)]
 #[derive(Clone, Copy, Debug)]
 enum ProtectedLocation {
     All,
@@ -96,7 +97,15 @@ fn authorize(
     employee_name: &str,
     location: ProtectedLocation,
 ) -> Result<AuthorizationStatus, String> {
-    // put your code here
+    let db = Database::connect()?;
+    let employee = db.find_employee(employee_name)?;
+    let keycard = db.get_keycard(&employee)?;
+
+    if keycard.access_level >= location.required_access_level() {
+        Ok(AuthorizationStatus::Allow)
+    } else {
+        Ok(AuthorizationStatus::Deny)
+    }
 }
 
 fn main() {
