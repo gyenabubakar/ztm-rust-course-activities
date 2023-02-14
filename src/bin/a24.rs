@@ -10,4 +10,12 @@
 
 fn main() {
     let data = vec![1, 2, 3, 4, 5];
+    let over_10: Vec<_> = data.iter()
+        .map(|n| n * 3)
+        .filter(|n| n > &10)
+        .collect();
+
+    for num in over_10 {
+        println!("{num}")
+    }
 }
