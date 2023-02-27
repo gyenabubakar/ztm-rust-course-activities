@@ -16,8 +16,8 @@
 // * After moving the functions into modules, try running
 //   `cargo check --bin a26c` to get a listing of required code changes
 
-use demo::math::{add, mul, sub};
-use demo::msg::{capitalize, exciting, trim};
+use activities::math::{add, mul, sub};
+use activities::msg::{capitalize, exciting, trim};
 
 fn main() {
     // Part 1: math functions
