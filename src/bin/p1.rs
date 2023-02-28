@@ -35,96 +35,96 @@ use std::io;
 
 #[derive(Debug)]
 struct Bill {
-    name: String,
-    amount: f64,
+  name: String,
+  amount: f64,
 }
 
 enum MenuChoice {
-    Add,
-    View,
+  Add,
+  View,
 }
 
 impl Bill {
-    fn new(name: &str, amount: &f64) -> Self {
-        Bill {
-            name: name.to_owned(),
-            amount: amount.to_owned(),
-        }
+  fn new(name: &str, amount: &f64) -> Self {
+    Bill {
+      name: name.to_owned(),
+      amount: amount.to_owned(),
     }
+  }
 }
 
 fn get_menu_choice(input: &str) -> Option<MenuChoice> {
-    if input == "1" {
-        Some(MenuChoice::Add)
-    } else if input == "2" {
-        Some(MenuChoice::View)
-    } else {
-        None
-    }
+  match input {
+    "1" => Some(MenuChoice::Add),
+    "2" => Some(MenuChoice::View),
+    _ => None,
+  }
 }
 
 fn add_bill() -> io::Result<Option<Bill>> {
-    let mut name = String::new();
-    let mut amount_input = String::new();
-    let mut bill = Bill::new(&name, &0.0);
+  let mut name = String::new();
+  let mut amount_input = String::new();
+  let mut bill = Bill::new(&name, &0.0);
 
-    println!("Bill name:");
-    io::stdin().read_line(&mut name)?;
+  println!("Bill name:");
+  io::stdin().read_line(&mut name)?;
 
-    if !name.trim().is_empty() {
-        bill.name = name.trim().to_owned();
+  if !name.trim().is_empty() {
+    bill.name = name.trim().to_owned();
 
-        println!("Amount:");
-        io::stdin().read_line(&mut amount_input)?;
+    println!("Amount:");
+    io::stdin().read_line(&mut amount_input)?;
 
-        if !amount_input.trim().is_empty() {
-            if let Ok(amt) = amount_input.trim().parse::<f64>() {
-                bill.amount = amt;
-                return Ok(Some(bill));
-            } else {
-                println!("Enter a valid number.\n")
-            }
-        }
+    if !amount_input.trim().is_empty() {
+      if let Ok(amt) = amount_input.trim().parse::<f64>() {
+        bill.amount = amt;
+        return Ok(Some(bill));
+      } else {
+        println!("Enter a valid number.\n")
+      }
     }
+  }
 
-    Ok(None)
+  Ok(None)
 }
 
 fn view_bills(bills: &Vec<Bill>) {
-    for bill in bills.iter() {
-        println!("Bill – {:?}", bill);
-    }
+  for bill in bills.iter() {
+    println!("Bill – {:?}", bill);
+  }
 }
 
+fn remove_bill() {}
+
 fn main() {
-    let mut bills: Vec<Bill> = vec![];
+  let mut bills: Vec<Bill> = vec![];
 
-    'start: loop {
-        println!("\n== Manage Bills ==");
-        println!("1. Add bill");
-        println!("2. View bills\n");
-        println!("Enter selection:");
+  loop {
+    println!("\n== Manage Bills ==");
+    println!("1. Add bill");
+    println!("2. View bills\n");
+    println!("Enter selection:");
 
-        let mut buff = String::new();
-        let result = io::stdin().read_line(&mut buff);
+    let mut buff = String::new();
+    let result = io::stdin().read_line(&mut buff);
+    let trimmed = buff.trim().to_owned();
 
-        if result.is_ok() {
-            let trimmed = buff.trim().to_owned();
-            if let Some(choice) = get_menu_choice(&trimmed) {
-                use MenuChoice::{Add, View};
-                match choice {
-                    Add => {
-                        if let Ok(bill) = add_bill() {
-                            if bill.is_some() {
-                                bills.push(bill.unwrap())
-                            }
-                        }
-                    }
-                    View => view_bills(&bills),
-                }
-                continue 'start;
+    if trimmed.parse::<u8>().is_ok() && result.is_ok() {
+      if let Some(choice) = get_menu_choice(&trimmed) {
+        use MenuChoice::{Add, View};
+        match choice {
+          Add => {
+            if let Ok(bill) = add_bill() {
+              if bill.is_some() {
+                bills.push(bill.unwrap())
+              }
             }
+          }
+          View => view_bills(&bills),
         }
-        return;
+      }
+      continue;
     }
+    break;
+  }
 }
