@@ -31,6 +31,7 @@
 // * A vector is the easiest way to store the bills at stage 1, but a
 //   hashmap will be easier to work with at stages 2 and 3.
 
+use std::collections::HashMap;
 use std::io;
 
 #[derive(Debug)]
@@ -61,43 +62,45 @@ fn get_menu_choice(input: &str) -> Option<MenuChoice> {
   }
 }
 
-fn add_bill() -> io::Result<Option<Bill>> {
+fn add_bill(bills: &mut HashMap<String, Bill>) {
   let mut name = String::new();
   let mut amount_input = String::new();
-  let mut bill = Bill::new(&name, &0.0);
 
   println!("Bill name:");
-  io::stdin().read_line(&mut name)?;
+  let mut result = io::stdin().read_line(&mut name);
 
-  if !name.trim().is_empty() {
-    bill.name = name.trim().to_owned();
+  if result.is_ok() {
+    name = name.trim().to_owned();
+    if !name.is_empty() {
+      println!("Amount:");
+      result = io::stdin().read_line(&mut amount_input);
 
-    println!("Amount:");
-    io::stdin().read_line(&mut amount_input)?;
+      if result.is_ok() {
+        amount_input = amount_input.trim().to_owned();
 
-    if !amount_input.trim().is_empty() {
-      if let Ok(amt) = amount_input.trim().parse::<f64>() {
-        bill.amount = amt;
-        return Ok(Some(bill));
-      } else {
-        println!("Enter a valid number.\n")
+        if !amount_input.is_empty() {
+          if let Ok(amount) = amount_input.trim().parse::<f64>() {
+            let name_cloned = name.clone();
+            bills.insert(name_cloned, Bill { name, amount });
+          } else {
+            println!("Enter a valid number.\n")
+          }
+        }
       }
     }
   }
-
-  Ok(None)
 }
 
-fn view_bills(bills: &Vec<Bill>) {
-  for bill in bills.iter() {
-    println!("Bill – {:?}", bill);
+fn view_bills(bills: &HashMap<String, Bill>) {
+  for (_, bill) in bills.iter() {
+    println!("👉 name: {:?}, amount: \"{:?}\"", bill.name, bill.amount);
   }
 }
 
 fn remove_bill() {}
 
 fn main() {
-  let mut bills: Vec<Bill> = vec![];
+  let mut bills: HashMap<String, Bill> = HashMap::new();
 
   loop {
     println!("\n== Manage Bills ==");
@@ -113,13 +116,7 @@ fn main() {
       if let Some(choice) = get_menu_choice(&trimmed) {
         use MenuChoice::{Add, View};
         match choice {
-          Add => {
-            if let Ok(bill) = add_bill() {
-              if bill.is_some() {
-                bills.push(bill.unwrap())
-              }
-            }
-          }
+          Add => add_bill(&mut bills),
           View => view_bills(&bills),
         }
       }
