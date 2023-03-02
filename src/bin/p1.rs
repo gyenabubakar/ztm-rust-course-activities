@@ -74,6 +74,12 @@ fn add_bill(bills: &mut HashMap<String, Bill>) {
 
   if result.is_ok() {
     name = name.trim().to_owned();
+
+    if bills.contains_key(&name) {
+      println!("❌ The bill {:?} already exists.", name);
+      return;
+    }
+
     if !name.is_empty() {
       println!("Amount:");
       result = io::stdin().read_line(&mut amount_input);
