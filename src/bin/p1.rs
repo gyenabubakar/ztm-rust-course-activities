@@ -43,6 +43,7 @@ struct Bill {
 enum MenuChoice {
   Add,
   View,
+  Remove,
 }
 
 impl Bill {
@@ -55,9 +56,11 @@ impl Bill {
 }
 
 fn get_menu_choice(input: &str) -> Option<MenuChoice> {
+  use MenuChoice::*;
   match input {
-    "1" => Some(MenuChoice::Add),
-    "2" => Some(MenuChoice::View),
+    "1" => Some(Add),
+    "2" => Some(View),
+    "3" => Some(Remove),
     _ => None,
   }
 }
@@ -97,7 +100,20 @@ fn view_bills(bills: &HashMap<String, Bill>) {
   }
 }
 
-fn remove_bill() {}
+fn remove_bill(bills: &mut HashMap<String, Bill>) {
+  let mut name = String::new();
+  println!("Enter bill name:");
+  let result = io::stdin().read_line(&mut name);
+  name = name.trim().to_owned();
+
+  if result.is_ok() && !name.is_empty() {
+    if let Some(bill) = bills.remove(&name) {
+      println!("✅ Deleted {:?} successfully.", bill.name)
+    } else {
+      println!("❌ Found no bill named {:?}.", name)
+    }
+  }
+}
 
 fn main() {
   let mut bills: HashMap<String, Bill> = HashMap::new();
@@ -105,7 +121,8 @@ fn main() {
   loop {
     println!("\n== Manage Bills ==");
     println!("1. Add bill");
-    println!("2. View bills\n");
+    println!("2. View bills");
+    println!("3. Remove bill\n");
     println!("Enter selection:");
 
     let mut buff = String::new();
@@ -114,10 +131,11 @@ fn main() {
 
     if trimmed.parse::<u8>().is_ok() && result.is_ok() {
       if let Some(choice) = get_menu_choice(&trimmed) {
-        use MenuChoice::{Add, View};
+        use MenuChoice::*;
         match choice {
           Add => add_bill(&mut bills),
           View => view_bills(&bills),
+          Remove => remove_bill(&mut bills),
         }
       }
       continue;
