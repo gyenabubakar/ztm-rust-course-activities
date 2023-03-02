@@ -34,7 +34,7 @@
 use std::collections::HashMap;
 use std::io;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Bill {
   name: String,
   amount: f64,
@@ -44,6 +44,7 @@ enum MenuChoice {
   Add,
   View,
   Remove,
+  Update,
 }
 
 impl Bill {
@@ -61,6 +62,7 @@ fn get_menu_choice(input: &str) -> Option<MenuChoice> {
     "1" => Some(Add),
     "2" => Some(View),
     "3" => Some(Remove),
+    "4" => Some(Update),
     _ => None,
   }
 }
@@ -108,7 +110,7 @@ fn view_bills(bills: &HashMap<String, Bill>) {
 
 fn remove_bill(bills: &mut HashMap<String, Bill>) {
   let mut name = String::new();
-  println!("Enter bill name:");
+  println!("Enter bill name to remove:");
   let result = io::stdin().read_line(&mut name);
   name = name.trim().to_owned();
 
@@ -121,6 +123,67 @@ fn remove_bill(bills: &mut HashMap<String, Bill>) {
   }
 }
 
+fn update_bill(bills: &mut HashMap<String, Bill>) {
+  println!();
+  view_bills(bills);
+
+  let mut name = String::new();
+  let mut new_name = String::new();
+  let mut amount_input = String::new();
+
+  println!("Enter bill to update:");
+
+  if let Ok(_) = io::stdin().read_line(&mut name) {
+    name = name.trim().to_owned();
+    if !bills.contains_key(&name) {
+      if !name.is_empty() {
+        println!("❌ {:?} does not exist!", name);
+      }
+      return;
+    }
+
+    let target_bill = bills.get(&name).unwrap();
+    let mut new_bill = Bill {
+      name: target_bill.name.clone(),
+      amount: target_bill.amount,
+    };
+
+    println!("Enter new name:");
+    if let Ok(_) = io::stdin().read_line(&mut new_name) {
+      new_name = new_name.trim().to_owned();
+
+      if !new_name.is_empty() {
+        new_bill.name = new_name.clone();
+      } else {
+        println!("⚠️ No new name entered. Keeping current name.\n");
+      }
+
+      println!("Enter new amount:");
+      if let Ok(_) = io::stdin().read_line(&mut amount_input) {
+        amount_input = amount_input.trim().to_owned();
+
+        if let Ok(amount) = amount_input.parse::<f64>() {
+          new_bill.amount = amount;
+        } else {
+          println!(
+            "⚠️ {:?} is not a valid number. Keeping current amount.",
+            amount_input
+          );
+        }
+      }
+
+      bills.insert(new_name, new_bill.clone());
+      bills.remove(&name);
+
+      println!("✅ Updated bill successfully:");
+      println!(
+        "👉 name: {:?}, amount: \"{:?}\"",
+        new_bill.name, new_bill.amount
+      );
+    }
+  }
+}
+
 fn main() {
   let mut bills: HashMap<String, Bill> = HashMap::new();
 
@@ -128,7 +191,8 @@ fn main() {
     println!("\n== Manage Bills ==");
     println!("1. Add bill");
     println!("2. View bills");
-    println!("3. Remove bill\n");
+    println!("3. Remove bill");
+    println!("4. Update bill\n");
     println!("Enter selection:");
 
     let mut buff = String::new();
@@ -142,6 +206,7 @@ fn main() {
           Add => add_bill(&mut bills),
           View => view_bills(&bills),
           Remove => remove_bill(&mut bills),
+          Update => update_bill(&mut bills),
         }
       }
       continue;
